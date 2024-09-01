@@ -14,6 +14,10 @@ var (
 )
 
 func RegisterRepository[T any](opt option.DatabaseOption, table string){
+	if repositories == nil{
+		repositories =  map[reflect.Type]*option.RepositoryOption{}
+	}
+
 	modelType := reflect.TypeOf((*T)(nil)).Elem()
 
 	repoOpt := &option.RepositoryOption{
