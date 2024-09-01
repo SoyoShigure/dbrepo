@@ -44,6 +44,7 @@ func Do[T any](ctx context.Context, fn func(ctx context.Context, repo Repository
 
 	if(err != nil){
 		//TODO: 例外追加
+		print("Error Connecting")
 		return nil
 	}
 
@@ -51,6 +52,7 @@ func Do[T any](ctx context.Context, fn func(ctx context.Context, repo Repository
 
 	if(err != nil){
 		//TODO: 例外追加
+		print("Error Tx")
 		return nil
 	}
 
@@ -64,6 +66,7 @@ func Do[T any](ctx context.Context, fn func(ctx context.Context, repo Repository
 	}
 
 	if err = tx.Commit(); err != nil{
+		print("Error Commiting")
 		return err
 	}
 
