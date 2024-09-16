@@ -28,7 +28,7 @@ func RegisterRepository[T any](opt option.DatabaseOption, table string){
 	repositories[modelType] = repoOpt
 }
 
-func Do[T any](ctx context.Context, fn func(ctx context.Context, repo Repository[T]) error) error{
+func Do[T any](ctx context.Context, fn func(ctx context.Context, repo Repository[T]) error) (err error){
 
 	//TODO:　NoSuchElement
 	modelType := reflect.TypeOf((*T)(nil)).Elem()
@@ -42,18 +42,14 @@ func Do[T any](ctx context.Context, fn func(ctx context.Context, repo Repository
 
 	db, err := sql.Open("mysql", dsn)
 
-	if(err != nil){
-		//TODO: 例外追加
-		print("Error Connecting")
-		return nil
+	if(err != nil){ 
+		return
 	}
 
 	tx, err := db.BeginTx(ctx, nil)
 
-	if(err != nil){
-		//TODO: 例外追加
-		print("Error Tx")
-		return nil
+	if(err != nil){ 
+		return
 	}
 
 	repo := newRepository[T](tx, repoOpt.Table)
