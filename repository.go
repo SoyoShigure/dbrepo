@@ -134,11 +134,16 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 
 	columns := repo.getColumnInfos(false)
 
-	for _, column := range columns{
-		sql += fmt.Sprintf("%s, ", column.Name)
+	for i, column := range columns{
+		if i == 0{
+			sql += fmt.Sprintf("%s", column.Name)
+		}else{
+			sql += fmt.Sprintf(", %s", column.Name)
+		}
+		
 	}
 
-	sql += fmt.Sprintf("FROM %s", repo.table)
+	sql += fmt.Sprintf(" FROM %s", repo.table)
 
 	if opt.WherePhrase != nil{
 		where, err := opt.WherePhrase.ToSQL()
