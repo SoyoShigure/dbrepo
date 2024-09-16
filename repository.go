@@ -138,7 +138,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 		sql += fmt.Sprintf("%s, ", column.Name)
 	}
 
-	sql += fmt.Sprintf("FROM %s ", repo.table)
+	sql += fmt.Sprintf("FROM %s", repo.table)
 
 	if opt.WherePhrase != nil{
 		where, err := opt.WherePhrase.ToSQL()
