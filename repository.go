@@ -281,11 +281,19 @@ func (repo *repository[T]) Insert(ctx context.Context, value *T) (*T, error){
 		
 	}
 
-	result, _ := repo.tx.ExecContext(ctx, sql, *&vals...)
+	result, err := repo.tx.ExecContext(ctx, sql, *&vals...)
+
+	if err != nil{
+		return nil, err
+	}
 
 	index := repo.getIndexColumn()
 
-	lastId, _ := result.LastInsertId()
+	lastId, err := result.LastInsertId()
+
+	if err != nil{
+		return nil, err
+	}
 
 	opt := &option.SQLSelectOption{
 		WherePhrase: &option.SQLEqualIntPhraseOption{
