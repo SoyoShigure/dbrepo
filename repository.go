@@ -279,8 +279,8 @@ func (repo *repository[T]) Insert(ctx context.Context, value *T) (*T, error){
 
 	for i, column := range columns{
 		print(column)
-		vals[i] = modelValue.FieldByName(column.Field).Interface()
-		
+		//vals[i] = modelValue.FieldByName(column.Field).Interface()
+		vals[i] = reflect.Indirect(modelValue).FieldByName(column.Field).Interface()
 	}
 
 	result, err := repo.tx.ExecContext(ctx, sql, *&vals...)
