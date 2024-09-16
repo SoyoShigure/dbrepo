@@ -271,7 +271,7 @@ func (repo *repository[T]) Insert(ctx context.Context, value *T) (*T, error){
 		}
 	}
 
-	sql += fmt.Sprintf(") VALUES %s", sqlValues)
+	sql += fmt.Sprintf(") VALUES (%s)", sqlValues)
 
 	print(sql)
 
