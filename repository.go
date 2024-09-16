@@ -278,7 +278,7 @@ func (repo *repository[T]) Insert(ctx context.Context, value *T) (*T, error){
 	vals := make([]any, len(columns))
 
 	for i, column := range columns{
-
+		print(column)
 		vals[i] = modelValue.FieldByName(column.Field).Interface()
 		
 	}
