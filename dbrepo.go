@@ -38,7 +38,9 @@ func Do[T any](ctx context.Context, fn func(ctx context.Context, repo Repository
 	//sql.DBのインスタンス化
 	dbOpt := repoOpt.DBOpt
 
-	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true", dbOpt.User, dbOpt.Password, dbOpt.Host, dbOpt.Port, dbOpt.Name)
+	dsn := fmt.Sprintf("%s:%s@(%s:%d)/%s?parseTime=true", dbOpt.User, dbOpt.Password, dbOpt.Host, dbOpt.Port, dbOpt.Name)
+
+	print(dsn)
 
 	db, err := sql.Open("mysql", dsn)
 
