@@ -185,7 +185,8 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 	modelValue := reflect.New(modelType).Elem()
 
 	for i, column := range columns{
-		modelValue.FieldByName(column.Field).Set(vals[i])
+		//modelValue.FieldByName(column.Field).Set(vals[i])
+		reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
 	}
 
 	return modelValue.Interface().(*T), nil
