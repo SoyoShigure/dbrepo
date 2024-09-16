@@ -273,6 +273,8 @@ func (repo *repository[T]) Insert(ctx context.Context, value *T) (*T, error){
 
 	sql += fmt.Sprintf(") VALUES %s", sqlValues)
 
+	print(sql)
+
 	vals := make([]any, len(columns))
 
 	for i, column := range columns{
