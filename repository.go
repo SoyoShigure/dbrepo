@@ -217,13 +217,13 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 		//modelValue.FieldByName(column.Field).Set(vals[i])
 		if column.Type == "Json" || column.Type == "json"{
 			if column.FieldType.Kind() == reflect.Pointer{
-				err := json.Unmarshal(*ptrs[i].(*json.RawMessage), vals[i].Elem().Interface())
+				d :=  vals[i].Interface()
+				err := json.Unmarshal(*ptrs[i].(*json.RawMessage), d)
 				if err != nil{
 					return nil, err
 				}
-				reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
+				reflect.Indirect(modelValue).FieldByName(column.Field).Set(reflect.ValueOf(d))
 			}else{
-
 				err := json.Unmarshal(*ptrs[i].(*json.RawMessage), vals[i].Addr().Interface())
 				if err != nil{
 					return nil, err
