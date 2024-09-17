@@ -38,7 +38,7 @@ type repository[T any] struct {
 	table string
 }
 
-func (*repository[T]) getColumnInfos(withoutIndex bool) ([]*columnInfo){
+func (*repository[T]) getColumnInfos(withoutIndex bool, withOutReadOnly bool) ([]*columnInfo){
 	modelType := reflect.TypeOf((*T)(nil)).Elem()
 
 	var columns []*columnInfo
@@ -79,7 +79,17 @@ func (*repository[T]) getColumnInfos(withoutIndex bool) ([]*columnInfo){
 			column.IsIndex = false
 		}
 
+		if t := field.Tag.Get("readOnly"); t == "true"{
+			column.IsReadOnly = true
+		}else{
+			column.IsReadOnly = false
+		}
+
 		if withoutIndex && column.IsIndex{
+			continue
+		}
+
+		if withOutReadOnly && column.IsReadOnly{
 			continue
 		}
 		
@@ -136,7 +146,7 @@ func (*repository[T]) getIndexColumn() *columnInfo{
 func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOption) (*T, error){
 	sql := "SELECT "
 
-	columns := repo.getColumnInfos(false)
+	columns := repo.getColumnInfos(false, false)
 
 	for i, column := range columns{
 		if i == 0{
@@ -205,7 +215,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 func (repo *repository[T]) SelectAll(ctx context.Context, opt *option.SQLSelectOption) ([]*T, error){
 	sql := "SELECT "
 
-	columns := repo.getColumnInfos(false)
+	columns := repo.getColumnInfos(false,false)
 
 	for _, column := range columns{
 		sql += fmt.Sprintf("%s, ", column.Name)
@@ -270,7 +280,7 @@ func (repo *repository[T]) SelectAll(ctx context.Context, opt *option.SQLSelectO
 }
 
 func (repo *repository[T]) Insert(ctx context.Context, value *T) (*T, error){
-	columns := repo.getColumnInfos(true)
+	columns := repo.getColumnInfos(true, true)
 
 	modelValue := reflect.ValueOf(value)
 
@@ -356,7 +366,7 @@ func (repo *repository[T]) Insert(ctx context.Context, value *T) (*T, error){
 }
 
 func (repo *repository[T]) Update(ctx context.Context, value *T) (*T, error){
-	columns := repo.getColumnInfos(false)
+	columns := repo.getColumnInfos(false, true)
 	index := repo.getIndexColumn()
 
 	modelValue := reflect.ValueOf(value)
@@ -425,6 +435,6 @@ type columnInfo struct{
 	Name string
 	Type string
 	IsIndex bool
-
+	IsReadOnly bool
 	DefaultValue string
 }
