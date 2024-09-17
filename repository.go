@@ -219,7 +219,9 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 			if column.FieldType.Kind() == reflect.Pointer{
 				print(*ptrs[i].(*json.RawMessage))
 				d :=  vals[i].Elem().Interface()
-				err := json.Unmarshal(*ptrs[i].(*json.RawMessage), d)
+				var bytes []byte
+				err := ptrs[i].(*json.RawMessage).UnmarshalJSON(bytes)
+				err = json.Unmarshal(bytes, d)
 				if err != nil{
 					return nil, err
 				}
