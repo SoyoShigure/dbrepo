@@ -1,6 +1,7 @@
 package dbrepo
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -193,7 +194,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 			}else{
 				vals[i] = reflect.New(column.FieldType).Elem()
 			}
-			ptrs[i] = json.RawMessage{}
+			ptrs[i] = &json.RawMessage{}
 		}else{
 		if column.FieldType.Kind() == reflect.Pointer{
 			vals[i] = reflect.New(column.FieldType)
@@ -218,10 +219,9 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 		if column.Type == "Json" || column.Type == "json"{
 			if column.FieldType.Kind() == reflect.Pointer{
 				print(*ptrs[i].(*json.RawMessage))
-				d :=  vals[i].Elem().Interface()
-				var bytes []byte
-				err := ptrs[i].(*json.RawMessage).UnmarshalJSON(bytes)
-				err = json.Unmarshal(bytes, d)
+				
+				d :=  vals[i].Interface()
+				err  := json.NewDecoder(bytes.NewReader(*ptrs[i].(*json.RawMessage))).Decode(d)
 				if err != nil{
 					return nil, err
 				}
