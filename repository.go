@@ -3,11 +3,15 @@ package dbrepo
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"reflect"
+
 	//"strings"
 
 	"github.com/soyoshigure/dbrepo/option"
+
+	date "google.golang.org/genproto/googleapis/type/date"
 )
 
 type Repository[T any] interface {
@@ -292,7 +296,39 @@ func (repo *repository[T]) Insert(ctx context.Context, value *T) (*T, error){
 	for i, column := range columns{
 		print(column)
 		//vals[i] = modelValue.FieldByName(column.Field).Interface()
-		vals[i] = reflect.Indirect(modelValue).FieldByName(column.Field).Interface()
+		//Date型の場合かつgRPC用の型を使用している場合
+		if (column.Type == "date" || column.Type == "Date") && column.FieldType == reflect.TypeOf(&date.Date{}){
+			d := reflect.Indirect(modelValue).FieldByName(column.Field) .Interface().(*date.Date)
+
+			ds, err := fmt.Printf("%d-%d-%d", d.Year, d.Month, d.Day)
+			if err != nil{
+				return nil, err
+			}
+			vals[i] = ds
+		}else if(column.Type == "json" || column.Type == "Json"){
+
+			var js []byte
+			var err error
+			if column.FieldType.Kind() == reflect.Pointer{
+				js, err = json.Marshal(reflect.Indirect(reflect.Indirect(modelValue).FieldByName(column.Field)).Interface())
+			}else{
+				js, err = json.Marshal(reflect.Indirect(modelValue).FieldByName(column.Field).Interface())
+			}
+
+			if err != nil{
+				return nil, err
+			}
+
+			vals[i] = js
+			
+		}else{
+			if column.FieldType.Kind() == reflect.Pointer{
+				vals[i] = reflect.Indirect(reflect.Indirect(modelValue).FieldByName(column.Field)).Interface()
+			}else{
+				vals[i] = reflect.Indirect(modelValue).FieldByName(column.Field).Interface()
+			}
+			
+		}
 	}
 
 	result, err := repo.tx.ExecContext(ctx, sql, *&vals...)
