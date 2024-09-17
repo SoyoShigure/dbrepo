@@ -175,10 +175,10 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 	for i, column := range columns{ 
 		if column.FieldType.Kind() == reflect.Pointer{
 			vals[i] = reflect.New(column.FieldType)
-		ptrs[i] = vals[i].Interface()
+			ptrs[i] = vals[i].Interface()
 		}else{
 			vals[i] = reflect.New(column.FieldType).Elem()
-			ptrs[i] = vals[i].Interface()
+			ptrs[i] = vals[i].Addr().Interface()
 		}
 		
 	}
