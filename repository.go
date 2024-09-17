@@ -225,10 +225,10 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 				}
 				reflect.Indirect(modelValue).FieldByName(column.Field).Set(reflect.ValueOf(d))
 			}else{
-				err := json.Unmarshal(*ptrs[i].(*json.RawMessage), vals[i].Addr().Interface())
+				/*err := json.Unmarshal(*ptrs[i].(*json.RawMessage), vals[i].Addr().Interface())
 				if err != nil{
 					return nil, err
-				}
+				}*/
 				reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
 			}
 			ptrs[i] = &json.RawMessage{}
