@@ -189,6 +189,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 		if column.Type == "Json" || column.Type == "json"{
 			if column.FieldType.Kind() == reflect.Pointer{
 				vals[i] = reflect.New(column.FieldType)
+				print(vals[i].IsNil())
 			}else{
 				vals[i] = reflect.New(column.FieldType).Elem()
 			}
