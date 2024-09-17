@@ -217,7 +217,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 		//modelValue.FieldByName(column.Field).Set(vals[i])
 		if column.Type == "Json" || column.Type == "json"{
 			if column.FieldType.Kind() == reflect.Pointer{
-				d :=  vals[i].Interface()
+				d :=  vals[i].Elem().Interface()
 				err := json.Unmarshal(*ptrs[i].(*json.RawMessage), d)
 				if err != nil{
 					return nil, err
