@@ -195,7 +195,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 		reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
 	}
 
-	return modelValue.Interface().(*T), nil
+	return modelValue.Addr().Interface().(*T), nil
 }
 
 func (repo *repository[T]) SelectAll(ctx context.Context, opt *option.SQLSelectOption) ([]*T, error){
