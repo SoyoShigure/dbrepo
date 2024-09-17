@@ -189,7 +189,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 	for i, column := range columns{  
 		if column.Type == "Json" || column.Type == "json"{
 			if column.FieldType.Kind() == reflect.Pointer{
-				vals[i] = reflect.New(column.FieldType)
+				vals[i] = reflect.New(column.FieldType).Elem()
 				print(vals[i].IsNil())
 			}else{
 				vals[i] = reflect.New(column.FieldType).Elem()
