@@ -11,7 +11,7 @@ import (
 
 	"github.com/soyoshigure/dbrepo/option"
 
-	date "google.golang.org/genproto/googleapis/type/date"
+	//date "google.golang.org/genproto/googleapis/type/date"
 )
 
 type Repository[T any] interface {
@@ -186,7 +186,15 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 	ptrs := make([]any, len(columns))
 	vals := make([]reflect.Value, len(columns))
 
-	for i, column := range columns{ 
+	for i, column := range columns{  
+		if column.Type == "Json" || column.Type == "json"{
+			if column.FieldType.Kind() == reflect.Pointer{
+				vals[i] = reflect.New(column.FieldType)
+			}else{
+				vals[i] = reflect.New(column.FieldType).Elem()
+			}
+			ptrs[i] = &json.RawMessage{}
+		}else{
 		if column.FieldType.Kind() == reflect.Pointer{
 			vals[i] = reflect.New(column.FieldType)
 			ptrs[i] = vals[i].Interface()
@@ -194,6 +202,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 			vals[i] = reflect.New(column.FieldType).Elem()
 			ptrs[i] = vals[i].Addr().Interface()
 		}
+	}
 		
 	}
 
@@ -206,7 +215,27 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 
 	for i, column := range columns{
 		//modelValue.FieldByName(column.Field).Set(vals[i])
-		reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
+		if column.Type == "Json" || column.Type == "json"{
+			if column.FieldType.Kind() == reflect.Pointer{
+				err := json.Unmarshal(*ptrs[i].(*json.RawMessage), vals[i].Interface())
+				if err != nil{
+					return nil, err
+				}
+				reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
+			}else{
+
+				err := json.Unmarshal(*ptrs[i].(*json.RawMessage), vals[i].Addr().Interface())
+				if err != nil{
+					return nil, err
+				}
+				reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
+			}
+			ptrs[i] = &json.RawMessage{}
+
+			
+		}else{
+			reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
+		}
 	}
 
 	return modelValue.Addr().Interface().(*T), nil
@@ -306,8 +335,8 @@ func (repo *repository[T]) Insert(ctx context.Context, value *T) (*T, error){
 	for i, column := range columns{
 		print(column)
 		//vals[i] = modelValue.FieldByName(column.Field).Interface()
-		//Date型の場合かつgRPC用の型を使用している場合
-		if (column.Type == "date" || column.Type == "Date") && column.FieldType == reflect.TypeOf(&date.Date{}){
+		//Date型の場合かつgRPC用の型を使用している場合　いらない
+		/*if (column.Type == "date" || column.Type == "Date") && column.FieldType == reflect.TypeOf(&date.Date{}){
 			d := reflect.Indirect(modelValue).FieldByName(column.Field) .Interface().(*date.Date)
 
 			ds, err := fmt.Printf("%d-%d-%d", d.Year, d.Month, d.Day)
@@ -315,7 +344,7 @@ func (repo *repository[T]) Insert(ctx context.Context, value *T) (*T, error){
 				return nil, err
 			}
 			vals[i] = ds
-		}else if(column.Type == "json" || column.Type == "Json"){
+		}else */if(column.Type == "json" || column.Type == "Json"){
 
 			var js []byte
 			var err error
