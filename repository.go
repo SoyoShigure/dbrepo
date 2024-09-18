@@ -195,7 +195,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 				vals[i] = reflect.New(column.FieldType).Elem()
 			}*/
 			vals[i] = reflect.ValueOf(json.RawMessage{})
-			ptrs[i] = vals[i].Addr().Interface()
+			ptrs[i] = vals[i].Interface()
 		}else{
 		if column.FieldType.Kind() == reflect.Pointer{
 			vals[i] = reflect.New(column.FieldType)
