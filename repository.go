@@ -1,7 +1,6 @@
 package dbrepo
 
-import (
-	"bytes"
+import ( 
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -194,9 +193,9 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 			}else{
 				vals[i] = reflect.New(column.FieldType).Elem()
 			}*/
-			var data json.RawMessage
+			var data string
 			vals[i] = reflect.New(reflect.TypeOf(data))
-			ptrs[i] = vals[i].Interface()
+			ptrs[i] = vals[i].Addr().Interface()
 		}else{
 		if column.FieldType.Kind() == reflect.Pointer{
 			vals[i] = reflect.New(column.FieldType)
@@ -220,10 +219,13 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 		//modelValue.FieldByName(column.Field).Set(vals[i])
 		if column.Type == "Json" || column.Type == "json"{
 			if column.FieldType.Kind() == reflect.Pointer{
-				print(*ptrs[i].(*json.RawMessage))
+				//print(*ptrs[i].(*json.RawMessage))
 				
-				d := reflect.New(column.FieldType)
-				err  := json.NewDecoder(bytes.NewReader(vals[i].Interface().(json.RawMessage))).Decode(d)
+				d := reflect.New(column.FieldType).Interface()
+				//err  := json.NewDecoder(bytes.NewReader(vals[i].Interface().(json.RawMessage))).Decode(d)
+
+				err := json.Unmarshal([]byte(vals[i].Interface().(string)), d)
+
 				if err != nil{
 					return nil, err
 				}
