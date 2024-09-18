@@ -1,10 +1,11 @@
 package dbrepo
 
-import ( 
+import (
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"go/printer"
 	"reflect"
 
 	//"strings"
@@ -223,7 +224,9 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 				
 				d := reflect.New(column.FieldType).Elem().Interface()
 				//err  := json.NewDecoder(bytes.NewReader(vals[i].Interface().(json.RawMessage))).Decode(d)
-
+				print("---")
+				print(vals[i].Interface().(string))
+				print("---")
 				err := json.Unmarshal([]byte(vals[i].Interface().(string)), d)
 
 				if err != nil{
