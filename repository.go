@@ -194,7 +194,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 				vals[i] = reflect.New(column.FieldType).Elem()
 			}*/
 			var data string
-			vals[i] = reflect.New(reflect.TypeOf(data))
+			vals[i] = reflect.New(reflect.TypeOf(data)).Elem()
 			ptrs[i] = vals[i].Addr().Interface()
 		}else{
 		if column.FieldType.Kind() == reflect.Pointer{
