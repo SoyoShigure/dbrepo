@@ -187,16 +187,16 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 	vals := make([]reflect.Value, len(columns))
 
 	for i, column := range columns{  
-		if column.Type == "Json" || column.Type == "json"{
-			/*if column.FieldType.Kind() == reflect.Pointer{
+		/*if column.Type == "Json" || column.Type == "json"{
+			/if column.FieldType.Kind() == reflect.Pointer{
 				vals[i] = reflect.New(column.FieldType).Elem()
 				print(vals[i].IsNil())
 			}else{
 				vals[i] = reflect.New(column.FieldType).Elem()
-			}*/
-			vals[i] = reflect.ValueOf(json.RawMessage{})
+			}
+			vals[i] = reflect.ValueOf([]byte{})
 			ptrs[i] = vals[i].Interface()
-		}else{
+		}*///else{
 		if column.FieldType.Kind() == reflect.Pointer{
 			vals[i] = reflect.New(column.FieldType)
 			ptrs[i] = vals[i].Interface()
@@ -204,7 +204,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 			vals[i] = reflect.New(column.FieldType).Elem()
 			ptrs[i] = vals[i].Addr().Interface()
 		}
-	}
+	//}
 		
 	}
 
@@ -217,7 +217,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 
 	for i, column := range columns{
 		//modelValue.FieldByName(column.Field).Set(vals[i])
-		if column.Type == "Json" || column.Type == "json"{
+		/*if column.Type == "Json" || column.Type == "json"{
 			if column.FieldType.Kind() == reflect.Pointer{
 				print(*ptrs[i].(*json.RawMessage))
 				
@@ -232,14 +232,14 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 				if err != nil{
 					return nil, err
 				}*/
-				reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
-			}
-			ptrs[i] = &json.RawMessage{}
+				//reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
+			//}
+			//ptrs[i] = &json.RawMessage{}
 
 			
-		}else{
+		//}else{*/
 			reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
-		}
+		//}
 	}
 
 	return modelValue.Addr().Interface().(*T), nil
