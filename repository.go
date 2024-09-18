@@ -188,13 +188,14 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 
 	for i, column := range columns{  
 		if column.Type == "Json" || column.Type == "json"{
-			if column.FieldType.Kind() == reflect.Pointer{
+			/*if column.FieldType.Kind() == reflect.Pointer{
 				vals[i] = reflect.New(column.FieldType).Elem()
 				print(vals[i].IsNil())
 			}else{
 				vals[i] = reflect.New(column.FieldType).Elem()
-			}
-			ptrs[i] = &json.RawMessage{}
+			}*/
+			vals[i] = reflect.ValueOf(json.RawMessage{})
+			ptrs[i] = vals[i].Addr().Interface()
 		}else{
 		if column.FieldType.Kind() == reflect.Pointer{
 			vals[i] = reflect.New(column.FieldType)
@@ -220,8 +221,8 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 			if column.FieldType.Kind() == reflect.Pointer{
 				print(*ptrs[i].(*json.RawMessage))
 				
-				d :=  vals[i].Interface()
-				err  := json.NewDecoder(bytes.NewReader(*ptrs[i].(*json.RawMessage))).Decode(d)
+				d := reflect.New(column.FieldType)
+				err  := json.NewDecoder(bytes.NewReader(vals[i].Interface().(json.RawMessage))).Decode(d)
 				if err != nil{
 					return nil, err
 				}
