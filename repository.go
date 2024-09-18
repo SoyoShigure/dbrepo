@@ -198,7 +198,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 			ptrs[i] = vals[i].Addr().Interface()
 		}else{
 		if column.FieldType.Kind() == reflect.Pointer{
-			vals[i] = reflect.New(column.FieldType)
+			vals[i] = reflect.New(column.FieldType.Elem())
 			ptrs[i] = vals[i].Interface()
 		}else{
 			vals[i] = reflect.New(column.FieldType).Elem()
@@ -243,7 +243,10 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 
 			
 		}else{
-			reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
+			if column.FieldType.Kind() == reflect.Pointer{
+			}else{
+				reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
+			}
 		}
 	}
 
