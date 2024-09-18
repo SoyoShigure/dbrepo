@@ -187,16 +187,16 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 	vals := make([]reflect.Value, len(columns))
 
 	for i, column := range columns{  
-		/*if column.Type == "Json" || column.Type == "json"{
-			/if column.FieldType.Kind() == reflect.Pointer{
-				vals[i] = reflect.New(column.FieldType).Elem()
+		if column.Type == "Json" || column.Type == "json"{
+			/*if column.FieldType.Kind() == reflect.Pointer{
+				vals[i] = reflect.ValueOf([]byte{})
 				print(vals[i].IsNil())
 			}else{
 				vals[i] = reflect.New(column.FieldType).Elem()
-			}
+			}*/
 			vals[i] = reflect.ValueOf([]byte{})
-			ptrs[i] = vals[i].Interface()
-		}*///else{
+			ptrs[i] = vals[i].Addr().Interface()
+		}else{
 		if column.FieldType.Kind() == reflect.Pointer{
 			vals[i] = reflect.New(column.FieldType)
 			ptrs[i] = vals[i].Interface()
@@ -204,7 +204,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 			vals[i] = reflect.New(column.FieldType).Elem()
 			ptrs[i] = vals[i].Addr().Interface()
 		}
-	//}
+	}
 		
 	}
 
@@ -217,7 +217,7 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 
 	for i, column := range columns{
 		//modelValue.FieldByName(column.Field).Set(vals[i])
-		/*if column.Type == "Json" || column.Type == "json"{
+		if column.Type == "Json" || column.Type == "json"{
 			if column.FieldType.Kind() == reflect.Pointer{
 				print(*ptrs[i].(*json.RawMessage))
 				
@@ -228,18 +228,18 @@ func (repo *repository[T]) Select(ctx context.Context, opt *option.SQLSelectOpti
 				}
 				reflect.Indirect(modelValue).FieldByName(column.Field).Set(reflect.ValueOf(d))
 			}else{
-				/*err := json.Unmarshal(*ptrs[i].(*json.RawMessage), vals[i].Addr().Interface())
+				err := json.Unmarshal(*ptrs[i].(*json.RawMessage), vals[i].Addr().Interface())
 				if err != nil{
 					return nil, err
-				}*/
-				//reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
-			//}
-			//ptrs[i] = &json.RawMessage{}
+				}
+				reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
+			}
+			ptrs[i] = &json.RawMessage{}
 
 			
-		//}else{*/
+		}else{
 			reflect.Indirect(modelValue).FieldByName(column.Field).Set(vals[i])
-		//}
+		}
 	}
 
 	return modelValue.Addr().Interface().(*T), nil
